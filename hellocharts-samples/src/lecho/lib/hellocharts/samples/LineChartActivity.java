@@ -1,5 +1,9 @@
 package lecho.lib.hellocharts.samples;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
@@ -15,9 +19,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lecho.lib.hellocharts.animation.ChartAnimationListener;
+import lecho.lib.hellocharts.gesture.ContainerScrollType;
 import lecho.lib.hellocharts.gesture.ZoomType;
 import lecho.lib.hellocharts.listener.LineChartOnValueSelectListener;
 import lecho.lib.hellocharts.model.Axis;
+import lecho.lib.hellocharts.model.AxisValue;
 import lecho.lib.hellocharts.model.Line;
 import lecho.lib.hellocharts.model.LineChartData;
 import lecho.lib.hellocharts.model.PointValue;
@@ -28,6 +34,7 @@ import lecho.lib.hellocharts.view.Chart;
 import lecho.lib.hellocharts.view.LineChartView;
 
 public class LineChartActivity extends ActionBarActivity {
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +69,21 @@ public class LineChartActivity extends ActionBarActivity {
         private boolean hasLabelForSelected = false;
         private boolean pointsHaveDifferentColor;
 
+        public static final String WEATHER_CLEAR_DAY = "\uf00d";
+        public static final String WEATHER_CLEAR_NIGHT = "\uf02e";
+        private static final String WEATHER_PARTLY_SUNNY = "\uf00c";
+        private static final String WEATHER_MOSTLY_CLOUDY = "\uf013";
+        private static final String WEATHER_CLOUDY = "\uf013";
+        private static final String WEATHER_WARNING = "";
+        private static final String WEATHER_WINDY = "\uf050";
+        private static final String WEATHER_FOG = "\uf014";
+        private static final String WEATHER_RAINY = "\uf019";
+        private static final String WEATHER_ICE = "\uf076";
+        private static final String WEATHER_SMOKE = "\uf062";
+        private static final String WEATHER_SNOW = "\uf01b";
+        private static final String WEATHER_THUNDERSTORMS = "\uf01e";
+        private static final String WEATHER_UNKNOWN = "\uf03e";
+
         public PlaceholderFragment() {
         }
 
@@ -73,6 +95,7 @@ public class LineChartActivity extends ActionBarActivity {
             chart = (LineChartView) rootView.findViewById(R.id.chart);
             chart.setOnValueTouchListener(new ValueTouchListener());
 
+
             // Generate some random values.
             generateValues();
 
@@ -81,6 +104,14 @@ public class LineChartActivity extends ActionBarActivity {
             // Disable viewport recalculations, see toggleCubic() method for more info.
             chart.setViewportCalculationEnabled(false);
 
+            chart.setZoomEnabled(false);
+            chart.setContainerScrollEnabled(true, ContainerScrollType.HORIZONTAL);
+            chart.setScrollEnabled(true);
+
+            chart.setInteractive(true);
+            chart.setZoomLevel(0,0,10);
+//            chart.setCameraDistance(10f);
+//            chart.setLabelFor();
             resetViewport();
 
             return rootView;
@@ -184,7 +215,12 @@ public class LineChartActivity extends ActionBarActivity {
         private void generateValues() {
             for (int i = 0; i < maxNumberOfLines; ++i) {
                 for (int j = 0; j < numberOfPoints; ++j) {
-                    randomNumbersTab[i][j] = (float) Math.random() * 100f;
+                    int selectIndex = (int)((float)Math.random() * 2f);
+                    int delta = (int)((float)Math.random() * 3f);
+                    if(selectIndex==1){
+                        delta*= -1;
+                    }
+                    randomNumbersTab[i][j] = 25+delta;
                 }
             }
         }
@@ -220,48 +256,85 @@ public class LineChartActivity extends ActionBarActivity {
 
         private void generateData() {
 
+            Bitmap labelBitmap1 = BitmapFactory.decodeResource(getResources(),R.drawable.weather_cloud_sun_rain);
+            Bitmap labelBitmap2 = BitmapFactory.decodeResource(getResources(),R.drawable.weather_cloud_more_snow);
+            Bitmap labelBitmap3 = BitmapFactory.decodeResource(getResources(),R.drawable.weather_cloud_sun);
+            Bitmap labelBitmap4 = BitmapFactory.decodeResource(getResources(),R.drawable.weather_storm);
             List<Line> lines = new ArrayList<Line>();
             for (int i = 0; i < numberOfLines; ++i) {
 
                 List<PointValue> values = new ArrayList<PointValue>();
                 for (int j = 0; j < numberOfPoints; ++j) {
-                    values.add(new PointValue(j, randomNumbersTab[i][j]));
+                    int selectIndex = (int)((float)Math.random() * 5f);
+                    int labelTemperature =(int) randomNumbersTab[i][j];
+                    String labelText = labelTemperature + "℃";
+                    if(selectIndex == 1) {
+                        values.add(new PointValue(j, randomNumbersTab[i][j]).setLabel(labelText).setLabelIcon(WEATHER_CLEAR_DAY));
+                    } else if(selectIndex == 2) {
+                        values.add(new PointValue(j, randomNumbersTab[i][j]).setLabel(labelText).setLabelIcon(WEATHER_CLOUDY));
+                    } else if(selectIndex == 3) {
+                        values.add(new PointValue(j, randomNumbersTab[i][j]).setLabel(labelText).setLabelIcon(WEATHER_RAINY));
+                    } else if(selectIndex == 4) {
+                        values.add(new PointValue(j, randomNumbersTab[i][j]).setLabel(labelText));
+                    } else {
+                        values.add(new PointValue(j, randomNumbersTab[i][j]).setLabel(labelText));
+                    }
+
                 }
 
                 Line line = new Line(values);
-                line.setColor(ChartUtils.COLORS[i]);
+                line.setColor(Color.parseColor("#D3D3D3"));//ChartUtils.COLORS[i]
                 line.setShape(shape);
-                line.setCubic(isCubic);
+                line.setCubic(true);
                 line.setFilled(isFilled);
-                line.setHasLabels(hasLabels);
+                line.setHasLabels(true);
                 line.setHasLabelsOnlyForSelected(hasLabelForSelected);
                 line.setHasLines(hasLines);
                 line.setHasPoints(hasPoints);
                 if (pointsHaveDifferentColor){
                     line.setPointColor(ChartUtils.COLORS[(i + 1) % ChartUtils.COLORS.length]);
                 }
+                line.setPointColor(Color.parseColor("#51b6f4"));
+                line.setStrokeWidth(2);
                 lines.add(line);
             }
 
             data = new LineChartData(lines);
 
-            if (hasAxes) {
-                Axis axisX = new Axis();
-                Axis axisY = new Axis().setHasLines(true);
-                if (hasAxesNames) {
-                    axisX.setName("Axis X");
-                    axisY.setName("Axis Y");
+            List<AxisValue> axisValueList = new ArrayList<>();
+            for(int i=0 ;i<12;i++){
+                char[] labelCharArr = (i+":00").toCharArray();
+                if(i==0){
+                    labelCharArr = "Now".toCharArray();
                 }
-                data.setAxisXBottom(axisX);
-                data.setAxisYLeft(axisY);
+                axisValueList.add(new AxisValue(i,labelCharArr));
+            }
+
+            if (hasAxes) {
+                Axis axisX = new Axis().setHasLines(false).setHasSeparationLine(false);
+                Axis axisY = new Axis().setHasLines(false);
+
+                axisX.setValues(axisValueList);
+                if (hasAxesNames) {
+//                    axisX.setName("Axis X");
+//                    axisY.setName("Axis Y");
+                }
+                data.setAxisXTop(axisX);
+                data.setAxisYLeft(null);
             } else {
                 data.setAxisXBottom(null);
                 data.setAxisYLeft(null);
             }
-
+            data.setValueLabelBackgroundEnabled(false);
+            data.setValueLabelsTextColor(getResources().getColor(android.R.color.darker_gray));
+            data.setValueLabelTextSize(20);
             data.setBaseValue(Float.NEGATIVE_INFINITY);
+            Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "weathericons-regular-webfont.ttf");
+            data.setValueIconTextColor(Color.parseColor("#9E9FA0"));
+//            data.setValueIconTextColor(Color.GRAY);
+            data.setValueIconTextSize(30);
+            data.setValueIconTypeface(tf);
             chart.setLineChartData(data);
-
         }
 
         /**

@@ -36,9 +36,22 @@ public abstract class AbstractChartRenderer implements ChartRenderer {
      */
     protected RectF labelBackgroundRect = new RectF();
     /**
+     * Holds coordinates for label background rect.
+     */
+    protected RectF labelIconRect = new RectF();//Todo add by hiperion 20160522
+    /**
+     * Paint for value label icon.
+     */
+    protected Paint labelIconPaint = new Paint();
+
+    /**
      * Font metrics for label paint, used to determine text height.
      */
     protected FontMetricsInt fontMetrics = new FontMetricsInt();
+    /**
+     * Font metrics for label paint, used to determine text height.
+     */
+    protected FontMetricsInt iconFontMetrics = new FontMetricsInt();
     /**
      * If true maximum and current viewport will be calculated when chart data change or during data animations.
      */
@@ -64,11 +77,18 @@ public abstract class AbstractChartRenderer implements ChartRenderer {
         labelPaint.setAntiAlias(true);
         labelPaint.setStyle(Paint.Style.FILL);
         labelPaint.setTextAlign(Align.LEFT);
-        labelPaint.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+        labelPaint.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
         labelPaint.setColor(Color.WHITE);
 
         labelBackgroundPaint.setAntiAlias(true);
         labelBackgroundPaint.setStyle(Paint.Style.FILL);
+
+        //Todo add by hiperion 20160522
+        labelIconPaint.setAntiAlias(true);
+        labelIconPaint.setStyle(Paint.Style.FILL);
+        labelIconPaint.setTextAlign(Align.LEFT);
+        labelIconPaint.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
+        labelIconPaint.setColor(Color.GRAY);
     }
 
     @Override
@@ -88,6 +108,15 @@ public abstract class AbstractChartRenderer implements ChartRenderer {
         labelPaint.setColor(data.getValueLabelTextColor());
         labelPaint.setTextSize(ChartUtils.sp2px(scaledDensity, data.getValueLabelTextSize()));
         labelPaint.getFontMetricsInt(fontMetrics);
+
+        //Todo add by hiperion 20160522
+        Typeface typefaceIcon = chart.getChartData().getValueIconTypeface();
+        if (null != typefaceIcon) {
+            labelIconPaint.setTypeface(typefaceIcon);
+        }
+        labelIconPaint.setColor(data.getValueIconTextColor());
+        labelIconPaint.setTextSize(ChartUtils.sp2px(scaledDensity, data.getValueIconTextSize()));
+        labelIconPaint.getFontMetricsInt(iconFontMetrics);
 
         this.isValueLabelBackgroundEnabled = data.isValueLabelBackgroundEnabled();
         this.isValueLabelBackgroundAuto = data.isValueLabelBackgroundAuto();
@@ -123,7 +152,36 @@ public abstract class AbstractChartRenderer implements ChartRenderer {
 
         canvas.drawText(labelBuffer, startIndex, numChars, textX, textY, labelPaint);
     }
+    /**
+     * Draws label text and label icon and label background if isValueLabelBackgroundEnabled is true.
+     */
+    protected void drawLabelTextAndIcon(Canvas canvas, char[] labelBuffer, int startIndex, int numChars,
+                                              int autoBackgroundColor, String iconString) {
+        final float textX;
+        final float textY;
+        final float iconX;
+        final float iconY;
 
+        if (isValueLabelBackgroundEnabled) {
+
+            if (isValueLabelBackgroundAuto) {
+                labelBackgroundPaint.setColor(autoBackgroundColor);
+            }
+
+            canvas.drawRect(labelBackgroundRect, labelBackgroundPaint);
+
+            textX = labelBackgroundRect.left + labelMargin;
+            textY = labelBackgroundRect.bottom - labelMargin;
+        } else {
+            textX = labelBackgroundRect.left;
+            textY = labelBackgroundRect.bottom;
+        }
+        iconX = labelIconRect.left;
+        iconY = labelIconRect.bottom;
+
+        canvas.drawText(labelBuffer, startIndex, numChars, textX, textY, labelPaint);
+        canvas.drawText(iconString,iconX,iconY,labelIconPaint);//Todo add by hiperion 20160521
+    }
     @Override
     public boolean isTouched() {
         return selectedValue.isSet();

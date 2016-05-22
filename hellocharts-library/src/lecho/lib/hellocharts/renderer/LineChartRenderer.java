@@ -437,13 +437,13 @@ public class LineChartRenderer extends AbstractChartRenderer {
 
         final float labelWidth = labelPaint.measureText(labelBuffer, labelBuffer.length - numChars, numChars);
         final int labelHeight = Math.abs(fontMetrics.ascent);
-        float left = rawX - labelWidth / 2 - labelMargin;
-        float right = rawX + labelWidth / 2 + labelMargin;
+        float left = rawX - labelWidth / 2 ;//- labelMargin;
+        float right = rawX + labelWidth / 2 ;//+ labelMargin;
 
         float top;
         float bottom;
 
-        if (pointValue.getY() >= baseValue) {
+        if (pointValue.getY() < baseValue) { //Todo modify by hiperion 20160521
             top = rawY - offset - labelHeight - labelMargin * 2;
             bottom = rawY - offset;
         } else {
@@ -469,8 +469,19 @@ public class LineChartRenderer extends AbstractChartRenderer {
         }
 
         labelBackgroundRect.set(left, top, right, bottom);
-        drawLabelTextAndBackground(canvas, labelBuffer, labelBuffer.length - numChars, numChars,
-                line.getDarkenColor());
+
+        String labelIcon = pointValue.getLabelIcon();//Todo Add by hiperion 20160521
+        if(null!=labelIcon && labelIcon.length()>0){
+            float iconWidth = labelIconPaint.measureText(labelIcon);
+            int iconHeight = Math.abs(iconFontMetrics.ascent);
+//            labelBitmapRect.set(rawX-widthBitmap/2-labelMargin,rawY-offset-widthBitmap-labelMargin*2,rawX+widthBitmap/2+labelMargin,rawY-offset);
+            labelIconRect.set(rawX-iconWidth/2,rawY-offset-iconHeight-labelMargin*2,rawX+iconWidth/2,rawY-offset*2);
+            drawLabelTextAndIcon(canvas, labelBuffer, labelBuffer.length - numChars, numChars,
+                    line.getDarkenColor(),labelIcon);//Todo Add by hiperion 20160521
+        } else {
+            drawLabelTextAndBackground(canvas, labelBuffer, labelBuffer.length - numChars, numChars,
+                    line.getDarkenColor());
+        }
     }
 
     private void drawArea(Canvas canvas, Line line) {

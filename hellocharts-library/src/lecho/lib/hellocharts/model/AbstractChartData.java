@@ -18,6 +18,10 @@ public abstract class AbstractChartData implements ChartData {
     protected int valueLabelTextSize = DEFAULT_TEXT_SIZE_SP;
     protected Typeface valueLabelTypeface;
 
+    protected int valueIconTextColor = Color.GRAY;
+    protected int valueIconTextSize = DEFAULT_TEXT_SIZE_SP;
+    protected Typeface valueIconTypeface;
+
     /**
      * If true each value label will have background rectangle
      */
@@ -132,6 +136,39 @@ public abstract class AbstractChartData implements ChartData {
     public void setValueLabelTypeface(Typeface typeface) {
         this.valueLabelTypeface = typeface;
     }
+
+    //Todo add by hiperion
+    @Override
+    public int getValueIconTextColor() {
+        return valueIconTextColor;
+    }
+
+    @Override
+    public void setValueIconTextColor(int valueIconTextColor) {
+        this.valueIconTextColor = valueIconTextColor;
+    }
+
+    @Override
+    public int getValueIconTextSize() {
+        return valueIconTextSize;
+    }
+
+    @Override
+    public void setValueIconTextSize(int valueIconTextSize) {
+        this.valueIconTextSize = valueIconTextSize;
+    }
+
+    @Override
+    public Typeface getValueIconTypeface() {
+        return valueIconTypeface;
+    }
+
+    @Override
+    public void setValueIconTypeface(Typeface typeface) {
+        this.valueIconTypeface = typeface;
+    }
+
+
 
     @Override
     public boolean isValueLabelBackgroundEnabled() {

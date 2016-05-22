@@ -16,6 +16,7 @@ public class PointValue {
     private float diffX;
     private float diffY;
     private char[] label;
+    private String labelIcon;//Todo add by hiperion 20160521
 
     public PointValue() {
         set(0, 0);
@@ -85,6 +86,14 @@ public class PointValue {
     public PointValue setLabel(char[] label) {
         this.label = label;
         return this;
+    }
+    public PointValue setLabelIcon(String labelIcon) {//Todo add by hiperion 20160521
+        this.labelIcon = labelIcon;
+        return this;
+    }
+
+    public String getLabelIcon() {//Todo add by hiperion 20160521
+        return labelIcon;
     }
 
     @Override

@@ -101,6 +101,42 @@ public interface ChartData {
      */
     public void setValueLabelTypeface(Typeface typeface);
 
+    //Todo add by hiperion 20160522
+    /**
+     * Returns color used to draw value icon text.
+     */
+    public int getValueIconTextColor();
+
+    /**
+     * Set value icon text color, by default Color.WHITE.
+     */
+    public void setValueIconTextColor(int iconTextColor);
+
+    /**
+     * Returns text size for value icon in SP units.
+     */
+    public int getValueIconTextSize();
+
+    /**
+     * Set text size for value icon in SP units.
+     */
+    public void setValueIconTextSize(int iconTextSize);
+
+    /**
+     * Returns Typeface for value icon.
+     *
+     * @return Typeface or null if Typeface is not set.
+     */
+    public Typeface getValueIconTypeface();
+
+    /**
+     * Set Typeface for all values icon.
+     *
+     * @param typeface
+     */
+    public void setValueIconTypeface(Typeface typeface);
+
+
     /**
      * @see #setValueLabelBackgroundEnabled(boolean)
      */
