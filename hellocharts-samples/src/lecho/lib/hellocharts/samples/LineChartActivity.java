@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lecho.lib.hellocharts.animation.ChartAnimationListener;
-import lecho.lib.hellocharts.gesture.ContainerScrollType;
 import lecho.lib.hellocharts.gesture.ZoomType;
 import lecho.lib.hellocharts.listener.LineChartOnValueSelectListener;
 import lecho.lib.hellocharts.model.Axis;
@@ -104,15 +103,33 @@ public class LineChartActivity extends ActionBarActivity {
             // Disable viewport recalculations, see toggleCubic() method for more info.
             chart.setViewportCalculationEnabled(false);
 
-            chart.setZoomEnabled(false);
-            chart.setContainerScrollEnabled(true, ContainerScrollType.HORIZONTAL);
-            chart.setScrollEnabled(true);
+//            chart.setZoomEnabled(false);
+//            chart.setInteractive(true);
+//            chart.setContainerScrollEnabled(true, ContainerScrollType.HORIZONTAL);
+//            chart.setScrollEnabled(true);
 
-            chart.setInteractive(true);
-            chart.setZoomLevel(0,0,10);
+//            chart.setZoomType(ZoomType.HORIZONTAL_AND_VERTICAL);
+//            chart.setZoomLevel(0,0,20);
 //            chart.setCameraDistance(10f);
 //            chart.setLabelFor();
-            resetViewport();
+            final Viewport v = new Viewport(chart.getMaximumViewport());
+            v.top =30; //example max value
+            v.bottom = 16;  //example min value
+            chart.setMaximumViewport(v);
+//            v.left =0; //example max value
+//            v.right =6; //example max value
+            v.left = 0;
+            v.right =v.left+5;
+            chart.setCurrentViewport(v);
+            chart.setViewportCalculationEnabled(false);
+
+//            final Viewport vmax = new Viewport(chart.getMaximumViewport());
+//            vmax.top =30; //example max value
+//            vmax.bottom = 20;  //example min value
+//            vmax.left =0; //example max value
+//            vmax.right =11; //example max value
+//            chart.setMaximumViewport(vmax);
+//            resetViewport();
 
             return rootView;
         }
@@ -269,11 +286,11 @@ public class LineChartActivity extends ActionBarActivity {
                     int labelTemperature =(int) randomNumbersTab[i][j];
                     String labelText = labelTemperature + "℃";
                     if(selectIndex == 1) {
-                        values.add(new PointValue(j, randomNumbersTab[i][j]).setLabel(labelText).setLabelIcon(WEATHER_CLEAR_DAY));
+                        values.add(new PointValue(j, randomNumbersTab[i][j]).setLabel(labelText));
                     } else if(selectIndex == 2) {
-                        values.add(new PointValue(j, randomNumbersTab[i][j]).setLabel(labelText).setLabelIcon(WEATHER_CLOUDY));
+                        values.add(new PointValue(j, randomNumbersTab[i][j]).setLabel(labelText));
                     } else if(selectIndex == 3) {
-                        values.add(new PointValue(j, randomNumbersTab[i][j]).setLabel(labelText).setLabelIcon(WEATHER_RAINY));
+                        values.add(new PointValue(j, randomNumbersTab[i][j]).setLabel(labelText));
                     } else if(selectIndex == 4) {
                         values.add(new PointValue(j, randomNumbersTab[i][j]).setLabel(labelText));
                     } else {
@@ -286,7 +303,7 @@ public class LineChartActivity extends ActionBarActivity {
                 line.setColor(Color.parseColor("#D3D3D3"));//ChartUtils.COLORS[i]
                 line.setShape(shape);
                 line.setCubic(true);
-                line.setFilled(isFilled);
+                line.setFilled(true);
                 line.setHasLabels(true);
                 line.setHasLabelsOnlyForSelected(hasLabelForSelected);
                 line.setHasLines(hasLines);
@@ -295,10 +312,14 @@ public class LineChartActivity extends ActionBarActivity {
                     line.setPointColor(ChartUtils.COLORS[(i + 1) % ChartUtils.COLORS.length]);
                 }
                 line.setPointColor(Color.parseColor("#51b6f4"));
-                line.setStrokeWidth(2);
+                line.setPointRadius(4);
+                line.setColor(Color.parseColor("#ffffff"));
+                line.setAreaTransparency(230);
+                line.setStrokeWidth(4);
                 lines.add(line);
             }
 
+            lines.add(genTimeLine());
             data = new LineChartData(lines);
 
             List<AxisValue> axisValueList = new ArrayList<>();
@@ -315,11 +336,13 @@ public class LineChartActivity extends ActionBarActivity {
                 Axis axisY = new Axis().setHasLines(false);
 
                 axisX.setValues(axisValueList);
+                axisX.setTextColor(Color.GRAY);
+                axisX.setTextSize(18);
                 if (hasAxesNames) {
 //                    axisX.setName("Axis X");
 //                    axisY.setName("Axis Y");
                 }
-                data.setAxisXTop(axisX);
+//                data.setAxisXBottom(axisX);
                 data.setAxisYLeft(null);
             } else {
                 data.setAxisXBottom(null);
@@ -337,6 +360,31 @@ public class LineChartActivity extends ActionBarActivity {
             chart.setLineChartData(data);
         }
 
+        private Line genTimeLine(){
+            List<PointValue> values = new ArrayList<PointValue>();
+            for (int j = 0; j < numberOfPoints; ++j) {
+                String labelText = j + ":00";
+                values.add(new PointValue(j, 21).setLabel(labelText));
+            }
+
+            Line line = new Line(values);
+            line.setColor(Color.TRANSPARENT);//ChartUtils.COLORS[i]
+            line.setShape(shape);
+            line.setCubic(false);
+            line.setFilled(false);
+            line.setHasLabels(true);
+            line.setHasLabelsOnlyForSelected(hasLabelForSelected);
+            line.setHasLines(false);
+            line.setHasPoints(true);
+//            if (pointsHaveDifferentColor){
+//                line.setPointColor(ChartUtils.COLORS[(i + 1) % ChartUtils.COLORS.length]);
+//            }
+            line.setPointColor(Color.TRANSPARENT);
+            line.setPointRadius(4);
+            line.setAreaTransparency(230);
+            line.setStrokeWidth(4);
+            return line;
+        }
         /**
          * Adds lines to data, after that data should be set again with
          * {@link LineChartView#setLineChartData(LineChartData)}. Last 4th line has non-monotonically x values.

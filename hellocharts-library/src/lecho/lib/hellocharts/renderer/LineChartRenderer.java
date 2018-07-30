@@ -4,11 +4,13 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Paint.Cap;
 import android.graphics.Path;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.Rect;
+import android.graphics.Shader;
 
 import lecho.lib.hellocharts.model.Line;
 import lecho.lib.hellocharts.model.LineChartData;
@@ -350,11 +352,16 @@ public class LineChartRenderer extends AbstractChartRenderer {
         }
 
         canvas.drawPath(path, linePaint);
+//        newPath = new Path(path);
+//        newPath.offset(0,10);
+        path.offset(0,line.getStrokeWidth()*2);
         if (line.isFilled()) {
             drawArea(canvas, line);
         }
         path.reset();
     }
+
+    Path newPath;
 
     private void prepareLinePaint(final Line line) {
         linePaint.setStrokeWidth(ChartUtils.dp2px(density, line.getStrokeWidth()));
@@ -451,7 +458,7 @@ public class LineChartRenderer extends AbstractChartRenderer {
             bottom = rawY + offset + labelHeight + labelMargin * 2;
         }
 
-        if (top < contentRect.top) {
+        /*if (top < contentRect.top) {
             top = rawY + offset;
             bottom = rawY + offset + labelHeight + labelMargin * 2;
         }
@@ -467,7 +474,7 @@ public class LineChartRenderer extends AbstractChartRenderer {
             left = rawX - labelWidth - labelMargin * 2;
             right = rawX;
         }
-
+*/
         labelBackgroundRect.set(left, top, right, bottom);
 
         String labelIcon = pointValue.getLabelIcon();//Todo Add by hiperion 20160521
@@ -499,12 +506,23 @@ public class LineChartRenderer extends AbstractChartRenderer {
         final float right = Math.min(computator.computeRawX(line.getValues().get(lineSize - 1).getX()),
                 contentRect.right);
 
-        path.lineTo(right, baseRawValue);
-        path.lineTo(left, baseRawValue);
+        path.lineTo(right, baseRawValue+100);
+        path.lineTo(left, baseRawValue+100);
         path.close();
 
         linePaint.setStyle(Paint.Style.FILL);
         linePaint.setAlpha(line.getAreaTransparency());
+        //===============================
+        int fromX =(int) (right-left)/2;
+        int fromY =0;
+        int toX =(int) (right-left)/2;
+        int toY =(int)baseRawValue;
+//        linePaint.setARGB(99,105,179,135);
+        Shader mShader = new LinearGradient(fromX,fromY,toX,toY,new int[] {Color.GREEN,Color.WHITE},null,Shader.TileMode.REPEAT);
+//新建一个线性渐变，前两个参数是渐变开始的点坐标，第三四个参数是渐变结束的点的坐标。连接这2个点就拉出一条渐变线了，玩过PS的都懂。然后那个数组是渐变的颜色。下一个参数是渐变颜色的分布，如果为空，每个颜色就是均匀分布的。最后是模式，这里设置的是循环渐变
+//        Shader mShader = new SweepGradient(0,0,Color.GREEN,Color.WHITE);
+//        Shader mShader = new RadialGradient();
+        linePaint.setShader(mShader);
         canvas.drawPath(path, linePaint);
         linePaint.setStyle(Paint.Style.STROKE);
     }
